@@ -1,4 +1,4 @@
-from app.db.models import Base
+from db.models import Base
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config

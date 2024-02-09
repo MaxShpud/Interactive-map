@@ -25,6 +25,7 @@ class UserCreate(BaseModel):
     name: str
     surname: str
     email: EmailStr
+    password: str
 
     @validator("name")
     def validate_name(cls, value):
@@ -41,3 +42,6 @@ class UserCreate(BaseModel):
                 status_code=422, detail="Surname shoudl contains only letters"
             )
         return value
+
+class DeleteUserResponse(BaseModel):
+    deleted_user_id: uuid.UUID
