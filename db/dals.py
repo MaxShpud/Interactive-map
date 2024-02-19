@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import User
+from db.models import User, Role
 
 
 class UserDAL:
@@ -19,13 +19,15 @@ class UserDAL:
             name: str,
             surname: str,
             email: str,
-            hashed_password: str
+            hashed_password: str,
+            role: list[Role]
     ) -> User:
         new_user = User(
             name=name,
             surname=surname,
             email=email,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            role=role,
         )
         self.db_session.add(new_user)
         await self.db_session.flush()

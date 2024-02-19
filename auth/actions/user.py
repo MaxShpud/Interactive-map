@@ -3,7 +3,7 @@ from api.schemas import UserCreate
 from db.dals import UserDAL
 from auth.hashing import Hasher
 from typing import Union
-from db.models import User
+from db.models import User, Role
 
 
 async def _create_new_user(body: UserCreate, session) -> ShowUser:
@@ -14,6 +14,9 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             surname=body.surname,
             email=body.email,
             hashed_password=Hasher.get_password_hash(body.password),
+            role=[
+                Role.ROLE_USER
+            ],
         )
         return ShowUser(
             id=user.id,
@@ -52,3 +55,15 @@ async def _update_user(
             user_id=user_id, **updated_user_params
         )
         return updated_user_id
+
+
+async def check_user_permission(target_user: User, current_user: User) -> bool:
+    if target_user.id != current_user.id:
+        if Role.ROLE_ADMIN in current_user.role:
+            return False
+        if (
+                Role.ROLE_ADMIN in target_user.role
+                and Role.ROLE_ADMIN in current_user.role
+        ):
+            return False
+    return True
