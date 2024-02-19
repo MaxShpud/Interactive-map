@@ -12,6 +12,17 @@ services:
       - '5432:5432'
     volumes:
       - postgres_db:/var/lib/postgresql/data
+  postgres_db_test:
+    image: postgres:latest
+    container_name: PostgresContTest 
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
 volumes:
   postgres_db:
     driver: local
