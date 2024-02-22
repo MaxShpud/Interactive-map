@@ -1,4 +1,5 @@
 from typing import Union
+from datetime import timedelta
 
 from fastapi import Depends
 from fastapi import HTTPException
@@ -13,8 +14,9 @@ from db.dals import UserDAL
 from db.models import User
 from db.session import get_db
 from auth.hashing import Hasher
+from auth.security import create_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login/token")
 
 
 async def _get_user_by_email_for_auth(email: str, session: AsyncSession):
@@ -50,3 +52,12 @@ async def authenticate_user(
     if not Hasher.verify_password(password, user.hashed_password):
         return
     return user
+
+
+async def _gen_access_token(email):
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": email, "other_custom_data": [1, 2, 3, 4]},
+        expires_delta=access_token_expires,
+    )
+    return access_token
