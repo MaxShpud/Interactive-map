@@ -1,3 +1,5 @@
+from typing import Dict, Any, Coroutine
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from logging import getLogger
@@ -8,7 +10,6 @@ from api.schemas import ShowUser
 from api.schemas import DeleteUserResponse
 from api.schemas import UpdatedUserResponse
 from api.schemas import UpdateUserRequest
-from db.dals import UserDAL
 from db.session import get_db
 from db.models import User
 from auth.actions.auth import get_current_user_from_token
@@ -17,24 +18,34 @@ from auth.actions.user import _get_user_by_id
 from auth.actions.user import _update_user
 from auth.actions.user import _delete_user
 from auth.actions.user import check_user_permission
-
+from auth.security import create_access_token
+from datetime import timedelta
+import settings
+from auth.schemas import Token
 logger = getLogger(__name__)
 
 user_router = APIRouter()
 
 
-@user_router.post("/", response_model=ShowUser)
-async def create_user(body: UserCreate, db: AsyncSession = Depends(get_db)) -> ShowUser:
+@user_router.post("/create")
+async def create_user(body: UserCreate, db: AsyncSession = Depends(get_db)) -> Token:
     try:
-        return await _create_new_user(body, db)
+        user = await _create_new_user(body, db)
     except IntegrityError as error:
         logger.error(error)
         raise HTTPException(
             status_code=503,
             detail=f"Database error: {error}"
         )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "other_custom_data": [1, 2, 3, 4]},
+        expires_delta=access_token_expires,
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
-@user_router.delete("/", response_model=DeleteUserResponse)
+
+@user_router.delete("", response_model=DeleteUserResponse)
 async def delete_user(
         user_id: int,
         db: AsyncSession = Depends(get_db),
@@ -62,7 +73,7 @@ async def delete_user(
     return DeleteUserResponse(deleted_user_id=deleted_user_id)
 
 
-@user_router.patch("/", response_model=UpdatedUserResponse)
+@user_router.patch("", response_model=UpdatedUserResponse)
 async def update_user_by_id(
         user_id: int,
         body: UpdateUserRequest,
@@ -83,8 +94,8 @@ async def update_user_by_id(
         )
     if user_id != current_user.id:
         if await check_user_permission(
-            target_user=user_for_update,
-            current_user=current_user,
+                target_user=user_for_update,
+                current_user=current_user,
         ):
             raise HTTPException(
                 status_code=403,
@@ -105,7 +116,7 @@ async def update_user_by_id(
     return UpdatedUserResponse(updated_user_id=updated_user_id)
 
 
-@user_router.get("/", response_model=ShowUser)
+@user_router.get("", response_model=ShowUser)
 async def get_user_by_id(
         user_id: int,
         db: AsyncSession = Depends(get_db),
@@ -117,4 +128,11 @@ async def get_user_by_id(
             status_code=404,
             detail="User not found."
         )
+    return user
+
+
+@user_router.get("/me", response_model=ShowUser)
+async def get_current_user(
+        user: User = Depends(get_current_user_from_token)
+):
     return user
