@@ -1,14 +1,20 @@
-from api.schemas import ShowUser
-from api.schemas import UserCreate
+from api.user_schemas import ShowUser
+from api.user_schemas import UserCreate
 from db.dals import UserDAL
+from db.dals import UserFileDal
 from auth.hashing import Hasher
 from typing import Union
 from db.models import User, Role
+from aws.session import MinioTool
+from service.file_service import _get_file_id_by_user_id
+from service.file_service import _get_file_name_by_file_id
+from api.user_schemas import CurrentUserInfo
 
 
 async def _create_new_user(body: UserCreate, session) -> ShowUser:
     async with session.begin():
         user_dal = UserDAL(session)
+        user_file_dal = UserFileDal(session)
         user = await user_dal.create_user(
             name=body.name,
             surname=body.surname,
@@ -17,13 +23,18 @@ async def _create_new_user(body: UserCreate, session) -> ShowUser:
             role=[
                 Role.ROLE_USER
             ],
+            phone_number="",
+            about_me=""
         )
+        await user_file_dal.link(user.id, 1)
         return ShowUser(
             id=user.id,
             name=user.name,
             surname=user.surname,
             email=user.email,
             is_active=user.is_active,
+            phone_number=user.phone_number,
+            about_me=user.about_me
         )
 
 
@@ -67,3 +78,20 @@ async def check_user_permission(target_user: User, current_user: User) -> bool:
         ):
             return False
     return True
+
+
+async def _get_current_user_info(user, db) -> CurrentUserInfo:
+    minio = MinioTool()
+    file_id = await _get_file_id_by_user_id(user_id=user.id, session=db)
+    file_name = await _get_file_name_by_file_id(file_id=file_id, session=db)
+    file_base64 = await minio.download_file(file_id=file_id, file_name=file_name)
+    return CurrentUserInfo(
+        id=user.id,
+        name=user.name,
+        surname=user.surname,
+        email=user.email,
+        phone_number=user.phone_number,
+        about_me=user.phone_number,
+        photo_base64=file_base64,
+        photo_id=file_id
+    )

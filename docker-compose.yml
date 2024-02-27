@@ -12,17 +12,31 @@ services:
       - '5432:5432'
     volumes:
       - postgres_db:/var/lib/postgresql/data
-  postgres_db_test:
-    image: postgres:latest
-    container_name: PostgresContTest 
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=root
+#  postgres_db_test:
+#    image: postgres:latest
+#    container_name: PostgresContTest
+#    restart: always
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=root
+#    ports:
+#      - '5433:5432'
+#    volumes:
+#      - postgres_db:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
     ports:
-      - '5433:5432'
+      - "9000:9000"
+      - "9090:9090"
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=password
     volumes:
-      - postgres_db:/var/lib/postgresql/data
+      - minio:/data/minio
+    command: minio server /data/minio --console-address ":9090"
 volumes:
   postgres_db:
+    driver: local
+  minio:
     driver: local

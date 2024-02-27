@@ -1,0 +1,7 @@
+DELETE FROM public.users_files;
+DELETE FROM public.users;
+DELETE FROM public.files;
+
+ALTER SEQUENCE public.users_files_id_seq RESTART WITH 1;
+ALTER SEQUENCE public.users_id_seq RESTART WITH 1;
+ALTER SEQUENCE public.files_id_seq RESTART WITH 1;
