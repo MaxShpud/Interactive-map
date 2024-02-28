@@ -1,7 +1,6 @@
-from db.dals import FileDal, UserFileDal
-from api.file_schemas import ShowFile
-from aws.session import MinioTool
-from typing import Union
+from db.dals.FileDAL import FileDal
+from db.dals.UserFileDAL import UserFileDal
+from api.file.file_schemas import ShowFile
 
 
 async def _upload_new_file(file, session) -> ShowFile:

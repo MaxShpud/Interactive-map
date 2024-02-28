@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 import settings
-from db.dals import UserDAL
+from db.dals.UserDAL import UserDAL
 from db.models import User
 from db.session import get_db
 from auth.hashing import Hasher
@@ -41,6 +41,7 @@ async def get_current_user_from_token(token: str = Depends(oauth2_scheme), db: A
     if user is None:
         raise credentials_exception
     return user
+
 
 
 async def authenticate_user(
