@@ -1,16 +1,13 @@
-from typing import Dict, Any, Coroutine
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from logging import getLogger
 from sqlalchemy.exc import IntegrityError
 
-from api.user_schemas import UserCreate
-from api.user_schemas import ShowUser
-from api.user_schemas import DeleteUserResponse
-from api.user_schemas import UpdatedUserResponse
-from api.user_schemas import UpdateUserRequest
-from api.user_schemas import CurrentUserInfo
+from api.user.user_schemas import UserCreate
+from api.user.user_schemas import ShowUser
+from api.user.user_schemas import DeleteUserResponse
+from api.user.user_schemas import UpdateUserRequest
+from api.user.user_schemas import CurrentUserInfo
 from db.session import get_db
 from db.models import User
 from auth.actions.auth import get_current_user_from_token
@@ -19,14 +16,12 @@ from auth.actions.user import _get_user_by_id
 from auth.actions.user import _update_user
 from auth.actions.user import _get_current_user_info
 from auth.actions.user import _delete_user
-from service.file_service import _get_file_id_by_user_id
-from service.file_service import _get_file_name_by_file_id
 from auth.actions.user import check_user_permission
 from auth.security import create_access_token
 from datetime import timedelta
 import settings
 from auth.schemas import Token
-from aws.session import MinioTool
+
 logger = getLogger(__name__)
 
 user_router = APIRouter()
@@ -47,7 +42,7 @@ async def create_user(body: UserCreate, db: AsyncSession = Depends(get_db)) -> T
         data={"sub": user.email, "other_custom_data": [1, 2, 3, 4]},
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer", role="USER")
 
 
 @user_router.delete("", response_model=DeleteUserResponse)

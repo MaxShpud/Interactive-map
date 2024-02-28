@@ -1,14 +1,14 @@
-from api.user_schemas import ShowUser
-from api.user_schemas import UserCreate
-from db.dals import UserDAL
-from db.dals import UserFileDal
+from api.user.user_schemas import ShowUser
+from api.user.user_schemas import UserCreate
+from db.dals.UserDAL import UserDAL
+from db.dals.UserFileDAL import UserFileDal
 from auth.hashing import Hasher
 from typing import Union
 from db.models import User, Role
 from aws.session import MinioTool
 from service.file_service import _get_file_id_by_user_id
 from service.file_service import _get_file_name_by_file_id
-from api.user_schemas import CurrentUserInfo
+from api.user.user_schemas import CurrentUserInfo
 
 
 async def _create_new_user(body: UserCreate, session) -> ShowUser:

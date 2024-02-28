@@ -6,6 +6,7 @@ from typing import Tuple
 from settings import MINIO_HOST, MINIO_PORT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET_NAME
 import base64
 
+
 class Singleton(type):
     _instances = {}
     _lock = Lock = Lock()
@@ -45,7 +46,8 @@ class MinioTool(metaclass=Singleton):
     async def download_file(self, file_id: int, file_name: str) -> str:
         try:
             await self.__create_bucket()
-            self.client.fget_object(MINIO_BUCKET_NAME, f'{file_id}_{file_name}', f"aws/temp_storage/{file_id}_{file_name}")
+            self.client.fget_object(MINIO_BUCKET_NAME, f'{file_id}_{file_name}',
+                                    f"aws/temp_storage/{file_id}_{file_name}")
             file_base64 = await self.__to_base64(
                 f"aws/temp_storage/{file_id}_{file_name}")
             return file_base64
