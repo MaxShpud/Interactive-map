@@ -102,7 +102,7 @@ async def update_user_by_id(
                 detail="Forbidden."
             )
     try:
-        updated_user_id = await _update_user(
+        await _update_user(
             updated_user_params=updated_user_params,
             session=db,
             user_id=user_id
