@@ -42,3 +42,22 @@ class ObjectDAL:
         result = await self.db_session.execute(query)
         active_objects = result.scalars().all()
         return active_objects
+
+    async def get_object_by_id(self, object_id: int) -> Object:
+        query = select(Object).where(Object.id == object_id)
+        result = await self.db_session.execute(query)
+        object_row = result.fetchone()
+        if object_row is not None:
+            return object_row[0]
+
+    async def update_object(self, object_id: int, **kwargs) -> Union[int, None]:
+        query = (
+            update(Object)
+            .where(and_(Object.id == object_id, Object.is_active == True))
+            .values(**kwargs)
+            .returning(Object.id)
+        )
+        result = await self.db_session.execute(query)
+        update_object_id_row = result.fetchone()
+        if update_object_id_row is not None:
+            return update_object_id_row[0]

@@ -73,3 +73,13 @@ class Object(Base):
     links = Column(ARRAY(String), nullable=True)
     type = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
+    #is_favourite = Column(Boolean, nullable=False, default=False)
+
+
+class UserFavouriteObject(Base):
+    __tablename__ = "user_favourite_objects"
+
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    object_id = Column(Integer, ForeignKey("objects.id"), nullable=False)
+    is_favourite = Column(Boolean, nullable=False, default=True)
