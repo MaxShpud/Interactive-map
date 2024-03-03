@@ -83,3 +83,12 @@ class UserFavouriteObject(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     object_id = Column(Integer, ForeignKey("objects.id"), nullable=False)
     is_favourite = Column(Boolean, nullable=False, default=True)
+
+class ObjectFile(Base):
+    __tablename__ = "objects_files"
+
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    object_id = Column(Integer, ForeignKey("objects.id"), nullable=False)
+    file_id = Column(Integer, ForeignKey("files.id"), nullable=False)
+    is_active = Column(Boolean, default=True)
+

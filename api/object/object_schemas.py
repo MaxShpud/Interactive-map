@@ -35,6 +35,7 @@ class ObjectInfo(BaseModel):
     links: List[str]
     type: str
     is_favourite: bool
+    files_base64: List[str]
 
 
 class ObjectInfoResponse(BaseModel):

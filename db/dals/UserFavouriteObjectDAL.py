@@ -17,7 +17,6 @@ class UserFavouriteObjectDAL:
                               user_id: int,
                               object_id: int
                               ) -> UserFavouriteObject:
-        print("CREATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEeee")
         new_mark = UserFavouriteObject(
             user_id=user_id,
             object_id=object_id
@@ -50,7 +49,6 @@ class UserFavouriteObjectDAL:
                           object_id: int,
                           **kwargs
                           ) -> bool:
-        print("UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
         query = (
             update(UserFavouriteObject)
             .where(and_(UserFavouriteObject.user_id == user_id, UserFavouriteObject.object_id == object_id))
