@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from logging import getLogger
 from sqlalchemy.exc import IntegrityError
+from service.object_service import _get_files_base64
 
 from api.file.file_schemas import UploadedFileResponse
 from db.models import User
@@ -9,6 +10,7 @@ from auth.actions.auth import get_current_user_from_token
 from service.object_service import _create_new_object
 from service.object_service import _get_all_active_objects
 from service.object_service import _get_object_by_id
+from service.object_service import _get_favourite_objects
 from service.UFO_service import _update_mark
 from api.object.object_schemas import ObjectCreate
 from api.object.object_schemas import ObjectInfoResponse
@@ -37,8 +39,16 @@ async def get_objects_short_info(
         current_user: User = Depends(get_current_user_from_token)
 ) -> ObjectInfoResponse:
     active_objects = await _get_all_active_objects(current_user.id, db)
-    print(active_objects)
     return ObjectInfoResponse(objects=active_objects)
+
+
+@object_router.get("/favourite", response_model=ObjectInfoResponse)
+async def get_favourite_objects(
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user_from_token)
+) -> ObjectInfoResponse:
+    favourite_objects = await _get_favourite_objects(current_user.id, db)
+    return ObjectInfoResponse(objects=favourite_objects)
 
 
 @object_router.patch("")
@@ -48,6 +58,8 @@ async def update_object(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(get_current_user_from_token)
 ):
+    if current_user.role[0] == "USER":
+        raise HTTPException(status_code=403, detail="User don't have permission")
     updated_user_params = body.dict(exclude_unset=True)
     if updated_user_params == {}:
         raise HTTPException(
@@ -73,7 +85,8 @@ async def update_object(
             status_code=404,
             detail="Object not found."
         )
-    print("TESTTTTTTTTTTTTTTTTTTT", mark)
+    files_base64 = await _get_files_base64(object.id, db)
+
     return ObjectInfo(
         id=object.id,
         name=object.name,
@@ -82,5 +95,6 @@ async def update_object(
         description=object.description,
         links=object.links,
         type=object.type,
-        is_favourite=mark
+        is_favourite=mark,
+        files_base64=files_base64
     )
