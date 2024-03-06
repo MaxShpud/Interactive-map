@@ -4,7 +4,7 @@ from typing import Optional
 
 from fastapi import HTTPException
 from pydantic import constr
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from typing import Dict
 from pydantic import EmailStr
 from pydantic import validator
