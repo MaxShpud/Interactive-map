@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import and_
 from sqlalchemy import select
 from sqlalchemy import update
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Object, ObjectType
@@ -61,3 +62,14 @@ class ObjectDAL:
         update_object_id_row = result.fetchone()
         if update_object_id_row is not None:
             return update_object_id_row[0]
+
+    async def search_objects(self, search: str) -> list[Object]:
+        query = (
+            select(Object.name)
+            .filter(func.lower(Object.name).like(f'%{search}%'))
+        )
+        result = await self.db_session.execute(query)
+        search_result = result.scalars().all()
+        if not search_result:
+            return []
+        return search_result
