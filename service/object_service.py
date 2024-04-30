@@ -1,3 +1,5 @@
+import logging
+
 from api.object.object_schemas import ObjectCreate
 from db.dals.ObjectDAL import ObjectDAL
 from db.dals.UserFavouriteObjectDAL import UserFavouriteObjectDAL
@@ -44,12 +46,14 @@ async def _get_all_active_objects(user_id: int, session):
                     "files_base64": await _get_object_photos(files_ids, session)
                 }
             )
+
         return active_objects_dict
 
 
 async def _get_favourite_objects(user_id: int, session):
     active_objects = await _get_all_active_objects(user_id, session)
     favourite_objects = [obj for obj in active_objects if obj["is_favourite"]]
+    print("HELLLLOO", favourite_objects)
     return favourite_objects
 
 
@@ -95,3 +99,11 @@ async def _get_object_by_id(object_id: int, session) -> Union[Object, None]:
         )
         if object is not None:
             return object
+
+
+async def _search_object(search: str, session):
+    async with session.begin():
+        object_dal = ObjectDAL(session)
+        result = await object_dal.search_objects(search)
+
+        return result

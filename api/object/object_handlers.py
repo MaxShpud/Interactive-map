@@ -3,11 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from logging import getLogger
 from sqlalchemy.exc import IntegrityError
 from service.object_service import _get_files_base64
+from fastapi.responses import JSONResponse
 
 from api.file.file_schemas import UploadedFileResponse
 from db.models import User
 from auth.actions.auth import get_current_user_from_token
 from service.object_service import _create_new_object
+from service.object_service import _search_object
 from service.object_service import _get_all_active_objects
 from service.object_service import _get_object_by_id
 from service.object_service import _get_favourite_objects
@@ -98,3 +100,12 @@ async def update_object(
         is_favourite=mark,
         files_base64=files_base64
     )
+
+@object_router.get("/{search}")
+async def get_list_of_matches_objects_by_name(search: str,
+                                              db: AsyncSession = Depends(get_db),
+                                              current_user: User = Depends(get_current_user_from_token)
+                                              ):
+    active_objects = await _search_object(search, db)
+    print(active_objects)
+    return JSONResponse(content=active_objects, status_code=200)
