@@ -1,16 +1,15 @@
 from typing import Generator, Any
-from uuid import UUID
 
 import pytest
 import sqlalchemy
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
-import settings
-from main import app
+from src import config
+from src.main import app
 import os
 import asyncio
-from db.session import get_db
+from src.db.session import get_db
 import asyncpg
 
 
