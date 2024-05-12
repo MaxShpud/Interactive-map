@@ -36,7 +36,7 @@ class RoutesDAL:
         return new_route
 
     async def get_active_routes(self) -> list[Routes]:
-        query = select(Routes).where(Routes.is_active == True)
+        query = select(Routes).where(and_(Routes.is_active == True, Routes.system == True))
         result = await self.db_session.execute(query)
         active_objects = result.scalars().all()
         return active_objects
