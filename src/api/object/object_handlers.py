@@ -30,7 +30,7 @@ async def create_object(body: ObjectCreate,
                         current_user: User = Depends(get_current_user_from_token)):
     if current_user.role[0] == "USER":
         raise HTTPException(status_code=403, detail="User don't have permission")
-    await _create_new_object(body, db, True)
+    await _create_new_object(body, db, None, True)
 
 
 @object_router.get("", response_model=ObjectInfoResponse)
@@ -58,8 +58,8 @@ async def update_object(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(get_current_user_from_token)
 ):
-    if current_user.role[0] == "USER":
-        raise HTTPException(status_code=403, detail="User don't have permission")
+    # if current_user.role[0] == "USER":
+    #     raise HTTPException(status_code=403, detail="User don't have permission")
     updated_user_params = body.dict(exclude_unset=True)
     if updated_user_params == {}:
         raise HTTPException(
@@ -105,5 +105,4 @@ async def get_list_of_matches_objects_by_name(search: str,
                                               current_user: User = Depends(get_current_user_from_token)
                                               ):
     active_objects = await _search_object(search, db)
-    print(active_objects)
     return JSONResponse(content=active_objects, status_code=200)

@@ -20,7 +20,8 @@ class RoutesDAL:
             location: str,
             description: str,
             type: RouteType,
-            system: bool
+            system: bool,
+            user_id: int
     ) -> Routes:
         new_route = Routes(
             name=name,
@@ -28,7 +29,8 @@ class RoutesDAL:
             location=location,
             description=description,
             type=type,
-            system=system
+            system=system,
+            user_id=user_id
         )
 
         self.db_session.add(new_route)
@@ -37,6 +39,12 @@ class RoutesDAL:
 
     async def get_active_routes(self) -> list[Routes]:
         query = select(Routes).where(and_(Routes.is_active == True, Routes.system == True))
+        result = await self.db_session.execute(query)
+        active_objects = result.scalars().all()
+        return active_objects
+
+    async def get_active_user_routes(self, user_id) -> list[Routes]:
+        query = select(Routes).where(and_(Routes.is_active == True, Routes.system == False, Routes.user_id == user_id))
         result = await self.db_session.execute(query)
         active_objects = result.scalars().all()
         return active_objects

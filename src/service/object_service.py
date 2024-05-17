@@ -52,7 +52,6 @@ async def _get_all_active_objects(user_id: int, session):
 async def _get_favourite_objects(user_id: int, session):
     active_objects = await _get_all_active_objects(user_id, session)
     favourite_objects = [obj for obj in active_objects if obj["is_favourite"]]
-    print("HELLLLOO", favourite_objects)
     return favourite_objects
 
 

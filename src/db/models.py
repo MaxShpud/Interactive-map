@@ -111,7 +111,7 @@ class Routes(Base):
     type = Column(String, nullable=False)
     system = Column(Boolean, nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
-    #user_id= Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(Integer, nullable=True)
 
 
 class RoutesObjects(Base):
@@ -120,3 +120,11 @@ class RoutesObjects(Base):
     route_id = Column(Integer, ForeignKey("routes.id"), nullable=False)
     object_id = Column(Integer, ForeignKey("objects.id"), nullable=False)
     is_active = Column(Boolean, default=True)
+
+class UserFavouriteRoutes(Base):
+    __tablename__ = "user_favourite_routes"
+
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    route_id = Column(Integer, ForeignKey("routes.id"), nullable=False)
+    is_favourite = Column(Boolean, nullable=False, default=True)
